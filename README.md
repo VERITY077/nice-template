@@ -123,6 +123,63 @@ git push
 
 含义是：**写完直接 push，然后看线上结果**。如果构建出错，Actions 页面会变红，日志里能直接看到原因。正常写 Markdown 不会出问题。
 
+## ⚠️ 改仓库名或搬站时必须同步 `baseurl`
+
+这个站是**项目站点**，挂在子路径下，所以 `_config.yml` 里：
+
+```yaml
+url: https://verity077.github.io
+baseurl: "/nice-template"     # 必须等于仓库名，开头的斜杠不能少
+```
+
+`baseurl` 一旦不对，`relative_url` 就拼不出正确前缀，页面产出的是 `/assets/style.css`、`/posts/...` 这类**根路径**，浏览器会去 `https://verity077.github.io/` 根目录找，结果全部 **404**。
+
+症状很有迷惑性：**页面能打开、文字都在，但完全没有任何样式，文章和"关于我"也点不开**（因为它们是同一个前缀问题）。排查时先看这一点。
+
+| 情况 | `baseurl` 应设为 |
+| --- | --- |
+| 仓库叫 `nice-template`（现在） | `"/nice-template"` |
+| 把仓库改名成 `blog` | `"/blog"` |
+| 换成根仓库 `VERITY077.github.io` | `""` |
+| 绑定了自己的域名 | `""` |
+
+改完 push，等 Actions 变绿。
+
+## 每次发布后怎么自查
+
+**别只看首页能不能打开**，要确认真实链接可用。把下面这段存成 `check.sh`，在仓库目录里执行：
+
+```bash
+#!/bin/bash
+SITE="https://verity077.github.io/nice-template"
+fail=0
+for p in "/" "/about.html" "/assets/style.css" \
+         "/posts/first-post/" "/posts/c-pointer-notes/" "/posts/calculus-limits/" \
+         "/posts/linear-algebra-matrices/" "/posts/git-and-github-pages/"; do
+  code=$(curl -s -o /dev/null -w '%{http_code}' "$SITE$p")
+  [ "$code" = "200" ] || fail=1
+  printf '  %-3s %s\n' "$code" "$p"
+done
+
+# 关键：检查页面里真正写出来的地址，而不是自己拼的地址
+echo "--- 页面内实际链接 ---"
+links=$(curl -s "$SITE/" | grep -oE '(href|src)="/nice-template/[^"]*"' |
+        sed 's/.*="\/nice-template//;s/"$//' | sort -u)
+while IFS= read -r link; do
+  [ -z "$link" ] && link="/"
+  code=$(curl -s -o /dev/null -w '%{http_code}' "$SITE$link")
+  [ "$code" = "200" ] || echo "FAIL" >> /tmp/checkfail.$$
+  printf '  %-3s %s\n' "$code" "$link"
+done <<< "$links"
+[ -f /tmp/checkfail.$$ ] && { fail=1; rm -f /tmp/checkfail.$$; }
+
+echo
+[ "$fail" = "0" ] && echo "全部通过" || echo "有链接失败，检查 baseurl"
+```
+
+最后一行输出「全部通过」才算发布成功。
+
+
 ## 约定
 
 - 不引入 React、Vue、Node.js、npm、外部 CDN 或新的构建工具。样式只写在 `assets/style.css` 里。
