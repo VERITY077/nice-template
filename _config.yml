@@ -8,7 +8,9 @@ github_username: VERITY077
 markdown: kramdown
 permalink: /posts/:title/
 url: https://verity077.github.io
-baseurl: ""
+# 项目站点必须填仓库名，否则 relative_url 拼不出 /nice-template 前缀，
+# 页面里的 CSS、文章链接都会 404。若改用 <用户名>.github.io 根仓库，这里改回 ""。
+baseurl: "/nice-template"
 exclude:
   - README.md
   - Gemfile
