@@ -1,9 +1,14 @@
-title: 你的名字 · 个人博客
-description: 一个可以持续写作的个人博客
+title: Verity · 个人博客
+description: 记录编程、数学与写作的个人博客
 lang: zh-CN
-timezone: Asia/Singapore
+timezone: Asia/Shanghai
+author: Verity
+email: 1362691318@qq.com
+github_username: VERITY077
 markdown: kramdown
 permalink: /posts/:title/
+url: https://verity077.github.io
+baseurl: ""
 exclude:
   - README.md
   - Gemfile

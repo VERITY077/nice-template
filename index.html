@@ -5,17 +5,17 @@ layout: default
   <div>
     <p class="eyebrow">Personal blog · {{ 'now' | date: '%Y' }}</p>
     <h1 id="hero-title">你好，我是<br>{{ site.title | split: '·' | first }}。</h1>
-    <p class="hero-copy">我在这里记录正在学习的东西、做过的小项目，以及一些不想忘记的想法。</p>
+    <p class="hero-copy">我在这里记录正在学习的编程与数学、做过的小项目，以及一些不想忘记的想法。</p>
     <div class="hero-actions">
       <a class="button primary" href="#writing">读读我的文章</a>
-      <a class="button secondary" href="mailto:hello@example.com">给我发邮件</a>
+      <a class="button secondary" href="mailto:{{ site.email }}">给我发邮件</a>
     </div>
   </div>
-  <div class="hero-card" aria-label="个人头像占位图"><div class="avatar">YN</div></div>
+  <div class="hero-card" aria-label="个人头像占位图"><div class="avatar">V</div></div>
 </section>
 
 <section id="writing" class="wrap section" aria-labelledby="writing-title">
-  <div class="section-heading"><div><p class="eyebrow">Latest notes</p><h2 id="writing-title">最近写了什么</h2><div class="rule"></div></div><p>以后只需要在 `_posts` 文件夹中新增 Markdown 文件。</p></div>
+  <div class="section-heading"><div><p class="eyebrow">Latest notes</p><h2 id="writing-title">最近写了什么</h2><div class="rule"></div></div><p>以后只需要在 <code>_posts</code> 文件夹中新增 Markdown 文件。</p></div>
   <div class="article-grid">
     {% for post in site.posts limit: 6 %}
     <article class="card">
@@ -29,10 +29,10 @@ layout: default
 </section>
 
 <section id="projects" class="wrap section" aria-labelledby="projects-title">
-  <div class="section-heading"><div><p class="eyebrow">Selected work</p><h2 id="projects-title">做过的小项目</h2><div class="rule"></div></div><p>项目内容仍然直接写在这个页面里，适合首节先改文字和链接。</p></div>
+  <div class="section-heading"><div><p class="eyebrow">Selected work</p><h2 id="projects-title">做过的小项目</h2><div class="rule"></div></div><p>项目内容直接写在这个页面里，改文字和链接即可。</p></div>
   <div class="project-grid">
-    <article class="card"><div class="card-meta">PROJECT 01</div><h3>校园活动页面</h3><p>为一次活动制作的静态介绍页，练习了布局和信息层级。</p><a class="card-link" href="#">查看项目 →</a></article>
-    <article class="card"><div class="card-meta">PROJECT 02</div><h3>我的学习清单</h3><p>一个帮助自己整理课程、目标和阅读记录的小工具。</p><a class="card-link" href="#">查看项目 →</a></article>
-    <article class="card"><div class="card-meta">PROJECT 03</div><h3>正在进行中</h3><p>这里可以放一个还没完成、但值得继续记录的想法。</p><a class="card-link" href="#">了解更多 →</a></article>
+    <article class="card"><div class="card-meta">PROJECT 01</div><h3>这个博客本身</h3><p>用 Markdown 写作、Jekyll 渲染、GitHub Actions 自动发布的静态站点，没有数据库，也没有前端框架。</p><a class="card-link" href="{{ '/' | relative_url }}about.html">看看关于页 →</a></article>
+    <article class="card"><div class="card-meta">PROJECT 02</div><h3>课程笔记整理</h3><p>把计算机导论、微积分和线性代数的课堂要点写成可以回看的 Markdown 笔记。</p><a class="card-link" href="{{ '/' | relative_url }}#writing">读这些笔记 →</a></article>
+    <article class="card"><div class="card-meta">PROJECT 03</div><h3>C 语言学习记录</h3><p>从编译运行到指针和内存，把踩过的坑和想通的瞬间记下来。</p><a class="card-link" href="{{ '/posts/c-pointer-notes/' | relative_url }}">阅读文章 →</a></article>
   </div>
 </section>
