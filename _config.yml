@@ -11,7 +11,22 @@ url: https://verity077.github.io
 # 项目站点必须填仓库名，否则 relative_url 拼不出 /nice-template 前缀，
 # 页面里的 CSS、文章链接都会 404。若改用 <用户名>.github.io 根仓库，这里改回 ""。
 baseurl: "/nice-template"
+
+# 「学习资料」页面的 AI 后端地址（跨域绝对地址）。
+# 留空时页面可正常打开，但会显示「后端尚未接入」，不会发起任何上传。
+# 部署 server/ 后填部署地址，例如 https://verity-study.onrender.com
+study_api_base: ""
+
+# 前端允许选择的文件限制（后端还有自己的上限，两者需一致或前端更严格）
+study_max_files: 5
+study_max_file_mb: 20
+study_max_total_mb: 40
+
 exclude:
   - README.md
   - Gemfile
   - Gemfile.lock
+  # 后端代码不参与站点构建，也不应被发布到 Pages
+  - server
+  - .env
+  - .env.local

@@ -1,0 +1,119 @@
+---
+layout: default
+title: 学习资料
+permalink: /study/
+excerpt: 拖入课程 PDF、PPTX 或 DOCX，生成中文知识总结、术语对照与自测练习。
+---
+
+<section class="wrap study-hero" aria-labelledby="study-title">
+  <p class="eyebrow">Study kit · 课件转讲义</p>
+  <h1 id="study-title">把课件变成<br>能自学的讲义</h1>
+  <p class="study-lead">拖入课程 PDF、PPTX 或 DOCX，自动生成中文知识总结、重点词汇对照和带答案的自测练习。生成比较花时间，通常需要几十秒。</p>
+</section>
+
+<section class="wrap study-app" id="study-app"
+         data-api-base="{{ site.study_api_base }}"
+         data-max-files="{{ site.study_max_files | default: 5 }}"
+         data-max-file-mb="{{ site.study_max_file_mb | default: 20 }}"
+         data-max-total-mb="{{ site.study_max_total_mb | default: 40 }}"
+         data-docs-url="https://github.com/{{ site.github_username }}/{{ site.repository | default: 'nice-template' }}/blob/main/server/README.md"
+         aria-labelledby="setup-title">
+
+  <div class="study-grid">
+    <section class="panel upload-panel" aria-labelledby="setup-title">
+      <h2 id="setup-title">1 · 选择材料</h2>
+
+      <div id="config-warning" class="notice notice-warn" hidden>
+        <p><strong>AI 后端尚未接入。</strong>页面可以打开和选择文件，但还不能生成课件。需要先部署仓库里的 <code>server/</code>，再把地址填到 <code>_config.yml</code> 的 <code>study_api_base</code>。</p>
+        <p class="notice-more"><a id="docs-link" href="#">查看后端部署步骤 →</a></p>
+      </div>
+
+      <label id="dropzone" class="dropzone" for="file-input">
+        <span class="dropzone-mark" aria-hidden="true">＋</span>
+        <span class="dropzone-title">把文件拖到这里，或点击选择</span>
+        <span class="dropzone-meta">PDF、PPTX、DOCX、TXT、MD · 最多 <span id="max-files-label">5</span> 个文件</span>
+      </label>
+      <input id="file-input" class="visually-hidden" type="file" multiple
+             accept=".pdf,.pptx,.docx,.txt,.md">
+      <p id="dropzone-status" class="sr-only" aria-live="polite"></p>
+
+      <div class="files-head">
+        <h3>已选择</h3>
+        <button id="clear-button" class="link-button" type="button" hidden>全部移除</button>
+      </div>
+      <ul id="file-list" class="file-list"></ul>
+      <p id="file-list-empty" class="empty-note">还没有选择文件。</p>
+
+      <div class="confirm-panel" id="confirm-panel" hidden>
+        <label class="checkline" for="confirm-checkbox">
+          <input type="checkbox" id="confirm-checkbox">
+          <span>我已了解：文件会发送给我配置的 AI 服务（第三方）用于生成课件，不会被保存到仓库或公开存储。</span>
+        </label>
+        <div class="actions">
+          <button id="generate-button" class="button primary" type="button" disabled>确认并生成课件</button>
+          <button id="reset-button" class="button secondary" type="button">清空重选</button>
+        </div>
+      </div>
+
+      <div id="status-region" class="status-region" aria-live="polite">
+        <p id="status-text" class="status-text" hidden></p>
+        <div id="progress" class="progress" hidden>
+          <div id="progress-bar" class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+        </div>
+        <div id="error-box" class="error-box" hidden>
+          <p id="error-message" class="error-message"></p>
+          <p id="error-hint" class="error-hint" hidden></p>
+          <button id="retry-button" class="button secondary" type="button">重试</button>
+        </div>
+        <button id="cancel-button" class="button secondary" type="button" hidden>取消生成</button>
+      </div>
+    </section>
+
+    <aside class="panel info-panel" aria-labelledby="info-title">
+      <h2 id="info-title">2 · 会得到什么</h2>
+      <ol class="info-list">
+        <li><strong>标题与概览</strong>：材料标题、课程推断、原文语言与学习目标。</li>
+        <li><strong>中文知识总结</strong>：按章节或主题分组，讲概念与逻辑关系。</li>
+        <li><strong>重点词汇对照</strong>：保留原文词汇，给出中文释义。</li>
+        <li><strong>自测练习</strong>：理解与应用题，附答案和解析。</li>
+        <li><strong>来源说明</strong>：标明文件名，能定位时标出页码或幻灯片号。</li>
+      </ol>
+
+      <h3>支持的格式与限制</h3>
+      <ul class="limit-list">
+        <li>PDF（文字型，扫描图片版无法解析）</li>
+        <li>PPTX / DOCX（新版 Office 格式，不支持 .ppt/.doc）</li>
+        <li>TXT / MD</li>
+        <li>单个文件 ≤ <span id="max-size-label">20 MB</span>，合计 ≤ <span id="max-total-label">40 MB</span>，最多 <span id="max-count-label">5</span> 个</li>
+      </ul>
+
+      <p class="privacy-note"><strong>关于隐私</strong>：文件只在你点击「确认并生成」后发送，后端在内存中解析、不落盘保存。AI 服务由你自行配置，其数据政策取决于你选择的提供商。</p>
+    </aside>
+  </div>
+
+  <section id="result-section" class="result-section" aria-labelledby="result-title" hidden>
+    <div class="result-head">
+      <div>
+        <p class="eyebrow">Study pack</p>
+        <h2 id="result-title">生成的课件</h2>
+      </div>
+      <div class="result-actions">
+        <button id="copy-button" class="button secondary" type="button">复制全文</button>
+        <button id="new-button" class="button secondary" type="button">再生成一份</button>
+      </div>
+    </div>
+    <p id="result-meta" class="result-meta"></p>
+    <div id="result-root" class="result-root"></div>
+  </section>
+
+  <section id="last-result" class="last-result" hidden aria-labelledby="last-title">
+    <h2 id="last-title">本次已生成的课件</h2>
+    <p class="empty-note">上一份课件还在，<a id="show-last-button" href="#result-section">回到课件</a> 或继续选择新材料。</p>
+  </section>
+
+  <noscript>
+    <p class="notice notice-warn">这个页面需要 JavaScript 才能选择文件并生成课件。</p>
+  </noscript>
+</section>
+
+<script type="module" src="{{ '/assets/study/app.js' | relative_url }}"></script>

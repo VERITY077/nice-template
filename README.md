@@ -41,12 +41,15 @@ permalink: /posts/:title/
 
 ```text
 _posts/                       文章（Markdown）
-_config.yml                   站点配置：标题、描述、时区、邮箱、GitHub 用户名
+_config.yml                   站点配置：标题、描述、时区、邮箱、学习资料后端地址
 index.html                    首页：首屏文案 + 项目卡片
 about.md                      关于页
+study.html                    学习资料页（/study/）：拖入课件生成中文讲义
 assets/style.css              全部样式与配色
+assets/study/                 学习资料页的前端模块（校验 / API / 渲染 / 状态机）
 _layouts/default.html         页面框架：导航、页脚、<head>
 _layouts/post.html            文章页模板
+server/                       学习资料后端（Python，已排除出 Pages 构建）
 .github/workflows/pages.yml   自动构建与发布
 README.md                     这份说明（已在 _config.yml 中 exclude，不会出现在网站上）
 ```
@@ -61,6 +64,8 @@ README.md                     这份说明（已在 _config.yml 中 exclude，�
 | 配色和排版 | `assets/style.css` |
 | 文章正文 | `_posts/*.md` |
 | 导航和页脚 | `_layouts/default.html` |
+| 学习资料的页面与限制 | `study.html`、`_config.yml` |
+| 学习资料的后端 | `server/`（见 `server/README.md`） |
 
 ## 写一篇新文章
 
@@ -116,6 +121,64 @@ git push
 推送后打开仓库的 **Actions** 页面，等 `Build and deploy Jekyll site` 变成绿色（通常 40 秒左右），刷新博客就能看到。
 
 只改一两个字时，也可以直接在 GitHub 网页上编辑文件并提交，效果一样。
+
+## 学习资料（/study/）
+
+导航里的「学习资料」是一个独立的工具页：拖入课程文件，由 AI 生成可自学的中文讲义。
+
+- 入口：<https://verity077.github.io/nice-template/study/>
+- 源码：`study.html` + `assets/study/*.js` + `server/`（后端）
+
+### 能做什么
+
+上传课件后生成：标题与概览、按章节组织的中文知识总结、重点词汇原文—中文对照、带答案与解析的自测练习、来源说明。所有内容先做结构校验再展示；材料不足时会在结果里提示，而不是编造。
+
+### 支持的格式与限制
+
+| 格式 | 说明 |
+| --- | --- |
+| PDF | 仅文字型；扫描图片版需要先 OCR |
+| PPTX | 新版 PowerPoint；不支持旧版 `.ppt` |
+| DOCX | 新版 Word；不支持旧版 `.doc` |
+| TXT / MD | 纯文本笔记 |
+
+默认限制（`_config.yml` 与后端环境变量两边都要一致）：单个文件 ≤ 20 MB，合计 ≤ 40 MB，最多 5 个文件。
+
+### 为什么需要单独部署后端
+
+GitHub Pages 只能托管静态文件，**不能安全保存 API 密钥**。所以页面只调用一个受控 API，密钥放在服务端环境变量里。仓库里的 `server/` 就是这个后端，不参与 Pages 构建。
+
+启用步骤（需要你自己的密钥和一个后端部署账号）：
+
+1. 按 [server/README.md](server/README.md) 部署 `server/`（Render / Fly.io / Docker 主机均可）。
+2. 在部署平台设置 `AI_API_KEY`、`AI_API_BASE`、`AI_MODEL`、`ALLOWED_ORIGINS`。
+3. 打开 `https://<后端地址>/healthz`，确认 `"configured": true`。
+4. 把后端地址填进 `_config.yml` 的 `study_api_base`，push。
+
+没配置之前，页面可以正常打开、选择文件、看到格式限制，但会明确显示「AI 后端尚未接入」，不会发起上传，也不会伪造结果。
+
+### 隐私与安全
+
+- 文件只在你勾选确认并点击「确认并生成」后才发送。
+- 后端在内存中解析，不写磁盘、不进仓库或公开存储。
+- 前端与后端都会校验格式和大小；后端还会核对文件头。
+- 日志只记录方法、路径、状态码和耗时，不记录文件内容或密钥。
+
+### 本地验证
+
+```bash
+# 后端测试（需要 pypdf）
+python -m unittest discover -s server/tests -t .
+
+# 不配密钥也能跑通页面流程（返回模拟课件）
+AI_MOCK=1 PORT=8787 python -m server.app
+```
+
+然后本地起一个静态服务器打开 `study.html`（需先把 Liquid 变量替换成实际值），或直接部署到 Pages 看「未配置」状态。
+
+### 当前版本没有的东西
+
+没有用户账号、云端资料库、历史记录、搜索或筛选；一次生成的结果只保存在当前页面内，刷新后不保留。这些是后续扩展点，数据结构和渲染层已经分开，增加格式或调整课件结构不需要改状态机。
 
 ## 一个要注意的限制
 
