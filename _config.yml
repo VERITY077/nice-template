@@ -28,6 +28,5 @@ exclude:
   - Gemfile.lock
   # 后端代码不参与站点构建，也不应被发布到 Pages
   - worker
-  - server
   - .env
   - .env.local

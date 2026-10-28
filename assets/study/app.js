@@ -289,7 +289,7 @@ function init(app) {
   async function startGeneration() {
     if (state.working || !state.items.length) return;
     if (!CONFIG.apiBase) {
-      showError('AI 后端还没有配置。', '请先部署 server/，再把部署地址填到 _config.yml 的 study_api_base。');
+      showError('AI 后端还没有配置。', '请先部署 worker/（Cloudflare Worker），再把地址填到 _config.yml 的 study_api_base。');
       return;
     }
 

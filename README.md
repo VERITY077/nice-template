@@ -49,8 +49,7 @@ assets/style.css              全部样式与配色
 assets/study/                 学习资料页的前端模块（校验 / API / 渲染 / 状态机）
 _layouts/default.html         页面框架：导航、页脚、<head>
 _layouts/post.html            文章页模板
-worker/                       学习资料后端（Cloudflare Worker，推荐；已排除出 Pages 构建）
-server/                       学习资料后端（Python，历史方案，未部署）
+worker/                       学习资料后端（Cloudflare Worker；已排除出 Pages 构建）
 .github/workflows/pages.yml   自动构建与发布
 README.md                     这份说明（已在 _config.yml 中 exclude，不会出现在网站上）
 ```
@@ -192,10 +191,6 @@ pnpm dev                         # http://127.0.0.1:8787
 
 pnpm dry-run              # 只打包，不部署
 ```
-
-### 历史方案
-
-`server/` 里保留了一份早期的 Python 后端（未部署）。它不再是推荐路径，Worker 是当前实现；保留仅为历史参考，避免误用。
 
 ### 当前版本没有的东西
 

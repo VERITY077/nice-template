@@ -1,8 +1,4 @@
 .DS_Store
-__pycache__/
-*.pyc
-server/.env
-.venv/
 _site/
 
 worker/node_modules/
