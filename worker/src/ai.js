@@ -122,7 +122,12 @@ async function chat(config, messages, useJsonMode = true) {
       return chat(config, messages, false);
     }
     if (response.status === 401 || response.status === 403) {
-      throw new AIError('AI_AUTH', 'DeepSeek 拒绝了请求，请检查 Worker 的 DEEPSEEK_API_KEY 是否有效。');
+      console.error('deepseek auth rejected', response.status);
+      throw new AIError('AI_AUTH', `DeepSeek 返回 HTTP ${response.status}，DEEPSEEK_API_KEY 被拒绝。`);
+    }
+    if (response.status === 402) {
+      console.error('deepseek quota rejected', response.status);
+      throw new AIError('AI_UPSTREAM', 'DeepSeek 账户余额不足或计费异常。');
     }
     if (response.status === 429) {
       throw new AIError('AI_UPSTREAM', 'DeepSeek 当前限流，请稍后重试。');

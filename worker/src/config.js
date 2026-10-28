@@ -1,6 +1,13 @@
 const MB = 1024 * 1024;
 const DEFAULT_ORIGINS = ['https://verity077.github.io'];
 
+function normalizeSecret(value) {
+  let key = String(value || '').trim();
+  key = key.replace(/^Bearer\s+/i, '').trim();
+  key = key.replace(/^["'`]/, '').replace(/["'`]$/, '').trim();
+  return key;
+}
+
 function positiveInt(value, fallback, min, max) {
   const parsed = Number.parseInt(value, 10);
   if (!Number.isFinite(parsed)) return fallback;
@@ -18,7 +25,7 @@ export function readConfig(env = {}) {
   return {
     apiBase: String(env.DEEPSEEK_API_BASE || 'https://api.deepseek.com').replace(/\/+$/, ''),
     model: String(env.DEEPSEEK_MODEL || 'deepseek-chat').trim(),
-    apiKey: String(env.DEEPSEEK_API_KEY || '').trim(),
+    apiKey: normalizeSecret(env.DEEPSEEK_API_KEY),
     mock,
     allowedOrigins: origins.length ? origins : DEFAULT_ORIGINS,
     maxFiles: positiveInt(env.MAX_FILES, 3, 1, 10),
