@@ -49,7 +49,8 @@ assets/style.css              全部样式与配色
 assets/study/                 学习资料页的前端模块（校验 / API / 渲染 / 状态机）
 _layouts/default.html         页面框架：导航、页脚、<head>
 _layouts/post.html            文章页模板
-server/                       学习资料后端（Python，已排除出 Pages 构建）
+worker/                       学习资料后端（Cloudflare Worker，推荐；已排除出 Pages 构建）
+server/                       学习资料后端（Python，历史方案，未部署）
 .github/workflows/pages.yml   自动构建与发布
 README.md                     这份说明（已在 _config.yml 中 exclude，不会出现在网站上）
 ```
@@ -65,7 +66,7 @@ README.md                     这份说明（已在 _config.yml 中 exclude，�
 | 文章正文 | `_posts/*.md` |
 | 导航和页脚 | `_layouts/default.html` |
 | 学习资料的页面与限制 | `study.html`、`_config.yml` |
-| 学习资料的后端 | `server/`（见 `server/README.md`） |
+| 学习资料的后端 | `worker/`（见 `worker/README.md`） |
 
 ## 写一篇新文章
 
@@ -127,7 +128,7 @@ git push
 导航里的「学习资料」是一个独立的工具页：拖入课程文件，由 AI 生成可自学的中文讲义。
 
 - 入口：<https://verity077.github.io/nice-template/study/>
-- 源码：`study.html` + `assets/study/*.js` + `server/`（后端）
+- 源码：`study.html` + `assets/study/*.js` + `worker/`（Cloudflare Worker 后端）
 
 ### 能做什么
 
@@ -137,44 +138,64 @@ git push
 
 | 格式 | 说明 |
 | --- | --- |
-| PDF | 仅文字型；扫描图片版需要先 OCR |
+| PDF | 仅文字型；扫描图片版直接报错并提示暂不支持 OCR |
 | PPTX | 新版 PowerPoint；不支持旧版 `.ppt` |
 | DOCX | 新版 Word；不支持旧版 `.doc` |
-| TXT / MD | 纯文本笔记 |
+| TXT / MD | 纯 UTF-8 文本 |
 
-默认限制（`_config.yml` 与后端环境变量两边都要一致）：单个文件 ≤ 20 MB，合计 ≤ 40 MB，最多 5 个文件。
+默认限制（`_config.yml` 与 `worker/wrangler.toml` 两边一致）：单个文件 ≤ 5 MB，合计 ≤ 10 MB，最多 3 个文件，PDF 最多处理 60 页，送进模型的文本最多 60,000 字符。
 
 ### 为什么需要单独部署后端
 
-GitHub Pages 只能托管静态文件，**不能安全保存 API 密钥**。所以页面只调用一个受控 API，密钥放在服务端环境变量里。仓库里的 `server/` 就是这个后端，不参与 Pages 构建。
+GitHub Pages 只能托管静态文件，**不能安全保存 API 密钥**。页面只调用一个受控 API；密钥放在 Cloudflare Worker Secret 里，浏览器、仓库和构建产物里都没有密钥。
 
-启用步骤（需要你自己的密钥和一个后端部署账号）：
+后端在 `worker/`，使用 Cloudflare Workers 直接调用 DeepSeek 官方 API（`https://api.deepseek.com`），**不使用 DeepSeek Harness 桌面应用作为线上后端**。`worker/` 不参与 Pages 构建。
 
-1. 按 [server/README.md](server/README.md) 部署 `server/`（Render / Fly.io / Docker 主机均可）。
-2. 在部署平台设置 `AI_API_KEY`、`AI_API_BASE`、`AI_MODEL`、`ALLOWED_ORIGINS`。
-3. 打开 `https://<后端地址>/healthz`，确认 `"configured": true`。
-4. 把后端地址填进 `_config.yml` 的 `study_api_base`，push。
+启用步骤（需要你自己的 Cloudflare 账号和 DeepSeek Key）：
 
-没配置之前，页面可以正常打开、选择文件、看到格式限制，但会明确显示「AI 后端尚未接入」，不会发起上传，也不会伪造结果。
+1. 按 [worker/README.md](worker/README.md) 部署 Worker（Wrangler CLI 或 Cloudflare Dashboard 的 Git 集成）。
+2. 在 Cloudflare 设置 Secret：`DEEPSEEK_API_KEY`（只填在 Worker 的 Variables and Secrets，不要提交到仓库）。
+3. 非敏感变量 `DEEPSEEK_API_BASE`、`DEEPSEEK_MODEL`、`ALLOWED_ORIGINS` 等放在 `worker/wrangler.toml` 或 Dashboard 中。
+4. 打开 `https://<worker>.workers.dev/healthz`，确认 `"configured": true`。
+5. 把 Worker 的 HTTPS 地址填进 `_config.yml` 的 `study_api_base`，push。
+
+没配置之前，页面可以正常打开、选择文件、看到格式限制，但会明确显示「AI 后端尚未接入」，不会发起上传，也不会回退到模拟内容冒充真实生成。
+
+### 平台限制
+
+- **Cloudflare Workers 免费计划的 CPU 预算是 10 ms/请求**，解析 PDF 很容易超出；PDF 支持在免费计划上可能失败。要稳定处理 PDF，请使用 Workers Paid（CPU 上限高得多）。
+- 平台请求体上限约 100 MB，但本应用限制为合计 10 MB，远低于平台上限。
+- Worker 打包后约 590 KiB gzip（含 `unpdf`），在免费计划的 3 MB 限制内。
+- 解析在内存中完成，不落盘；超长材料会按 60,000 字符截断，并在结果 `warnings` 里明确标注。
 
 ### 隐私与安全
 
 - 文件只在你勾选确认并点击「确认并生成」后才发送。
+- 密钥只在 Worker Secret 中；响应、日志、源映射和前端代码都不包含密钥。
 - 后端在内存中解析，不写磁盘、不进仓库或公开存储。
-- 前端与后端都会校验格式和大小；后端还会核对文件头。
-- 日志只记录方法、路径、状态码和耗时，不记录文件内容或密钥。
+- 前端与后端都会校验格式和大小；后端还会核对文件头（`%PDF-`、ZIP 内的 `word/`/`ppt/`）。
+- CORS 默认只允许 `https://verity077.github.io` 和本地开发地址。
+- 限流是 Worker 实例内的内存计数，**尽力而为**，多实例不共享，不能替代 Cloudflare 的 WAF/限流规则。
+- DeepSeek 如何处理数据取决于 DeepSeek 的数据政策；本项目不做超出实现能力的承诺。
 
 ### 本地验证
 
-```bash
-# 后端测试（需要 pypdf）
-python -m unittest discover -s server/tests -t .
+Worker 的开发与测试需要 Node.js + pnpm（**仅后端开发用**，博客本身仍然不需要 Node.js/npm）：
 
-# 不配密钥也能跑通页面流程（返回模拟课件）
-AI_MOCK=1 PORT=8787 python -m server.app
+```bash
+cd worker
+pnpm install
+pnpm test                 # 34 项 Node 原生测试
+
+cp .dev.vars.example .dev.vars   # 本地 mock：AI_MOCK=1
+pnpm dev                         # http://127.0.0.1:8787
+
+pnpm dry-run              # 只打包，不部署
 ```
 
-然后本地起一个静态服务器打开 `study.html`（需先把 Liquid 变量替换成实际值），或直接部署到 Pages 看「未配置」状态。
+### 历史方案
+
+`server/` 里保留了一份早期的 Python 后端（未部署）。它不再是推荐路径，Worker 是当前实现；保留仅为历史参考，避免误用。
 
 ### 当前版本没有的东西
 

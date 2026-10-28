@@ -1,0 +1,19 @@
+{
+  "name": "verity-study-worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cloudflare Worker backend for the /study/ page: parse course files and call DeepSeek.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "dry-run": "wrangler deploy --dry-run --outdir dist",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "unpdf": "^1.9.1"
+  },
+  "devDependencies": {
+    "wrangler": "^4.154.0"
+  }
+}

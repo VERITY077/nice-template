@@ -1,0 +1,14 @@
+# 复制为 .dev.vars 后用于本地 `wrangler dev`；.dev.vars 已在 .gitignore 中。
+# 这里只写变量名和占位说明，不要提交任何真实密钥。
+
+# 本地 UI/解析联调可以先不开真实模型：
+AI_MOCK=1
+
+# 真实调用 DeepSeek 时取消注释并填入你本地临时使用的 key
+# （不要把本文件提交到 Git，也不要在聊天里粘贴 key）：
+# DEEPSEEK_API_KEY=replace-with-your-local-key
+
+# 可选覆盖，默认值见 wrangler.toml
+# DEEPSEEK_API_BASE=https://api.deepseek.com
+# DEEPSEEK_MODEL=deepseek-chat
+# ALLOWED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000

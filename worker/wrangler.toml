@@ -1,0 +1,20 @@
+name = "verity-study"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+# 非敏感配置。密钥 DEEPSEEK_API_KEY 不要写在这里：
+# 本地用 .dev.vars，线上用 `wrangler secret put DEEPSEEK_API_KEY`
+# 或 Cloudflare Dashboard → Worker → Settings → Variables and Secrets。
+[vars]
+DEEPSEEK_API_BASE = "https://api.deepseek.com"
+DEEPSEEK_MODEL = "deepseek-chat"
+ALLOWED_ORIGINS = "https://verity077.github.io,http://localhost:8000,http://127.0.0.1:8000"
+MAX_FILES = "3"
+MAX_FILE_MB = "5"
+MAX_TOTAL_MB = "10"
+MAX_CHARS = "60000"
+MAX_PDF_PAGES = "60"
+RATE_LIMIT_PER_HOUR = "20"
+# 仅本地联调；线上保持 0。设为 1 时返回模拟课件，页面会显示模拟标记。
+AI_MOCK = "0"

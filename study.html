@@ -13,10 +13,10 @@ excerpt: 拖入课程 PDF、PPTX 或 DOCX，生成中文知识总结、术语对
 
 <section class="wrap study-app" id="study-app"
          data-api-base="{{ site.study_api_base }}"
-         data-max-files="{{ site.study_max_files | default: 5 }}"
-         data-max-file-mb="{{ site.study_max_file_mb | default: 20 }}"
-         data-max-total-mb="{{ site.study_max_total_mb | default: 40 }}"
-         data-docs-url="https://github.com/{{ site.github_username }}/{{ site.repository | default: 'nice-template' }}/blob/main/server/README.md"
+         data-max-files="{{ site.study_max_files | default: 3 }}"
+         data-max-file-mb="{{ site.study_max_file_mb | default: 5 }}"
+         data-max-total-mb="{{ site.study_max_total_mb | default: 10 }}"
+         data-docs-url="https://github.com/{{ site.github_username }}/{{ site.repository | default: 'nice-template' }}/blob/main/worker/README.md"
          aria-labelledby="setup-title">
 
   <div class="study-grid">
@@ -24,7 +24,7 @@ excerpt: 拖入课程 PDF、PPTX 或 DOCX，生成中文知识总结、术语对
       <h2 id="setup-title">1 · 选择材料</h2>
 
       <div id="config-warning" class="notice notice-warn" hidden>
-        <p><strong>AI 后端尚未接入。</strong>页面可以打开和选择文件，但还不能生成课件。需要先部署仓库里的 <code>server/</code>，再把地址填到 <code>_config.yml</code> 的 <code>study_api_base</code>。</p>
+        <p><strong>AI 后端尚未接入。</strong>页面可以打开和选择文件，但还不能生成课件。需要先部署仓库里的 <code>worker/</code>（Cloudflare Worker），再把地址填到 <code>_config.yml</code> 的 <code>study_api_base</code>。</p>
         <p class="notice-more"><a id="docs-link" href="#">查看后端部署步骤 →</a></p>
       </div>
 

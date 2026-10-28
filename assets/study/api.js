@@ -10,18 +10,21 @@ export class ApiError extends Error {
 }
 
 const HINTS = {
-  AI_NOT_CONFIGURED: '后端还没有配置 AI 密钥，需要管理员在服务端设置 AI_API_KEY。',
+  AI_NOT_CONFIGURED: 'Worker 还没有配置 DEEPSEEK_API_KEY；请在 Cloudflare 控制台为该 Worker 添加 Secret。',
+  AI_AUTH: 'Worker 的 DEEPSEEK_API_KEY 无效或已过期，请更新 Secret 后重试。',
   UNSUPPORTED_TYPE: '请改用 PDF、PPTX、DOCX、TXT 或 MD。旧版 .ppt/.doc 请先另存为新格式。',
-  FILE_TOO_LARGE: '压缩文件、拆分课件，或减少一次上传的数量。',
+  FILE_TOO_LARGE: '压缩或拆分文件；当前上限由 Worker 的环境变量决定。',
+  TOTAL_TOO_LARGE: '减少一次上传的文件数量，或压缩文件。',
   EXTRACTION_FAILED: '确认文件没有损坏、没有密码保护；扫描版 PDF 需要先做 OCR。',
-  PDF_TEXT_UNAVAILABLE: '这是图片型 PDF，文字无法直接提取，需要先 OCR 成文字。',
+  PDF_TEXT_UNAVAILABLE: '这是图片型 PDF，Worker 暂不支持 OCR，请先转成文字版。',
   CONTENT_TOO_SHORT: '换一份内容更完整的课件，或一次多选几个文件。',
-  RATE_LIMITED: '稍等一会儿再试。',
+  RATE_LIMITED: '触发了限流，稍后再试。',
   AI_TIMEOUT: '材料较大时会更慢，可以稍后重试或减少文件数量。',
-  AI_UPSTREAM: '这是 AI 服务端的临时问题，稍后重试通常能恢复。',
+  AI_UPSTREAM: 'DeepSeek 或网络暂时不可用，稍后重试通常能恢复。',
   AI_BAD_RESPONSE: '模型输出格式不符合要求，重试一次通常可以解决。',
-  NETWORK_ERROR: '检查 study_api_base 是否填写正确、后端是否在运行，以及后端是否允许本站跨域。',
-  TIMEOUT: '请求超过三分钟仍未返回，可以稍后重试。',
+  NETWORK_ERROR: '检查 study_api_base 是否为 Worker 的 HTTPS 地址、Worker 是否已部署，以及 ALLOWED_ORIGINS 是否包含本站。',
+  TIMEOUT: '请求超时，可以稍后重试或减少文件数量。',
+  NOT_FOUND: 'API 路径不存在，确认 study_api_base 只填 Worker 的域名、不要带路径。',
 };
 
 export function describeError(error) {

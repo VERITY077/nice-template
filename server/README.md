@@ -1,3 +1,5 @@
+> **历史方案**：学习资料页已改为 `worker/` 的 Cloudflare Worker 实现。本目录保留为早期 Python 方案，未部署，也不再是推荐路径；请以 `worker/README.md` 为准。
+
 # 学习资料生成后端
 
 给博客 `/study/` 页面使用的轻量 API：接收课程文件，解析文字，调用 OpenAI 兼容模型，返回结构化的中文课件 JSON。

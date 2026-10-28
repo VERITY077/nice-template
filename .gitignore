@@ -4,3 +4,9 @@ __pycache__/
 server/.env
 .venv/
 _site/
+
+worker/node_modules/
+worker/.dev.vars
+worker/.wrangler/
+worker/dist/
+.dev.vars
