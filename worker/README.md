@@ -51,6 +51,7 @@ POST /api/study-pack  multipart/form-data，字段名 files（可多个）
 | `MAX_TOTAL_MB` | var | `10` | 单次合计上限 |
 | `MAX_CHARS` | var | `60000` | 送进模型的文本上限 |
 | `MAX_PDF_PAGES` | var | `60` | PDF 最多处理页数 |
+| `AI_MAX_OUTPUT_TOKENS` | var | `8000` | 模型单次最大输出 token；过长会被截断 |
 | `RATE_LIMIT_PER_HOUR` | var | `20` | 每 IP 每小时请求数（实例内内存计数） |
 | `AI_MOCK` | var | `0` | 仅本地联调；线上必须为 `0` |
 
@@ -149,7 +150,7 @@ push 后 GitHub Pages 会自动重建，`/study/` 页面从 `data-api-base` 读�
 
 ```bash
 cd worker
-pnpm test          # 34 项 Node 原生测试：解析、结构、CORS、限制、AI 错误映射
+pnpm test          # 36 项 Node 原生测试：解析、结构、CORS、限制、AI 错误映射
 pnpm dry-run       # 只打包，不上传；确认 bundle 体积
 ```
 

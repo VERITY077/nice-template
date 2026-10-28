@@ -184,7 +184,7 @@ Worker 的开发与测试需要 Node.js + pnpm（**仅后端开发用**，博客
 ```bash
 cd worker
 pnpm install
-pnpm test                 # 34 项 Node 原生测试
+pnpm test                 # 36 项 Node 原生测试
 
 cp .dev.vars.example .dev.vars   # 本地 mock：AI_MOCK=1
 pnpm dev                         # http://127.0.0.1:8787

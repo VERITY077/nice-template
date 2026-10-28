@@ -153,3 +153,44 @@ test('模拟模式不发起任何网络请求', async () => {
     restore();
   }
 });
+
+test('finish_reason=length 会先精简重试，仍截断则返回 AI_TRUNCATED', async () => {
+  let calls = 0;
+  const restore = stubFetch(async () => {
+    calls += 1;
+    return new Response(JSON.stringify({
+      choices: [{ message: { content: '{"title":"被截断' }, finish_reason: 'length' }],
+    }), { status: 200 });
+  });
+  try {
+    await assert.rejects(
+      () => generatePack(config(), '很长的材料正文', FILES, []),
+      (error) => error.code === 'AI_TRUNCATED',
+    );
+    assert.equal(calls, 2);
+  } finally {
+    restore();
+  }
+});
+
+test('第一次截断、第二次完整时恢复成功', async () => {
+  let calls = 0;
+  const restore = stubFetch(async () => {
+    calls += 1;
+    if (calls === 1) {
+      return new Response(JSON.stringify({
+        choices: [{ message: { content: '{"title":"被截断' }, finish_reason: 'length' }],
+      }), { status: 200 });
+    }
+    return new Response(JSON.stringify({
+      choices: [{ message: { content: JSON.stringify(validPack()) }, finish_reason: 'stop' }],
+    }), { status: 200 });
+  });
+  try {
+    const { pack } = await generatePack(config(), '很长的材料正文', FILES, []);
+    assert.equal(pack.title, '极限与连续');
+    assert.equal(calls, 2);
+  } finally {
+    restore();
+  }
+});

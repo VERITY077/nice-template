@@ -35,6 +35,7 @@ export function readConfig(env = {}) {
     maxPdfPages: positiveInt(env.MAX_PDF_PAGES, 60, 1, 200),
     rateLimit: positiveInt(env.RATE_LIMIT_PER_HOUR, 20, 1, 1000),
     aiTimeoutMs: positiveInt(env.AI_TIMEOUT_MS, 90000, 10000, 120000),
+    aiMaxOutputTokens: positiveInt(env.AI_MAX_OUTPUT_TOKENS, 8000, 1000, 8192),
   };
 }
 
